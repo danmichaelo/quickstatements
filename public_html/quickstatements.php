@@ -119,6 +119,12 @@ class QuickStatements {
 		$this->oa = $oa;
 	}
 
+	public function openToolDB( string $table ) {
+		$host = isset($this->config->mysql) ? $this->config->mysql->host : '';
+		$credentials_file = isset($this->config->mysql) ? $this->config->mysql->credentials_file : '';
+		return openToolDB( $table, $host, '', false, $credentials_file );
+	}
+
 	public function getBatch ( $id ) {
 		$id *= 1 ;
 		$ret = array('commands'=>array()) ;
@@ -169,7 +175,7 @@ class QuickStatements {
 		$batch_id = $db->insert_id ;
 		$serialized = serialize($this->getOA()) ;
 
-		$db2 = openToolDB ( 'quickstatements_auth' ) ;
+		$db2 = $this->openToolDB ( 'quickstatements_auth' ) ;
 		$db2->set_charset("utf8") ;
 		$sql = "INSERT INTO `batch_oauth` (batch_id,serialized,serialized_json) VALUES ($batch_id,'".$db2->real_escape_string($serialized)."','".$db2->real_escape_string(json_encode(unserialize($serialized)))."')" ;
 		if(!$result = $db2->query($sql)) $this->log( "Could not store OAuth information for batch {$batch_id} [{$db->error}]" );
@@ -197,7 +203,7 @@ class QuickStatements {
 
 	public function getDB () {
 		if ( !isset($this->db) or !$this->db->ping() ) {
-			$this->db = openToolDB ( 'quickstatements_p' ) ;
+			$this->db = $this->openToolDB ( 'quickstatements_p' ) ;
 			$this->db->set_charset("utf8") ;
 			$this->setAuthDbName() ;
 		}
@@ -366,7 +372,7 @@ class QuickStatements {
 		while ( $o = $result->fetch_object() ) $last_batch_id = $o->id ;
 		if ( $last_batch_id == 0 ) return false ; # No batch
 
-		$db2 = openToolDB ( 'quickstatements_auth' ) ;
+		$db2 = $this->openToolDB ( 'quickstatements_auth' ) ;
 		$db2->set_charset("utf8") ;
 		$sql = "SELECT * FROM batch_oauth WHERE batch_id={$last_batch_id}" ;
 		if(!$result = $db2->query($sql)) return false ;
@@ -498,7 +504,7 @@ class QuickStatements {
 	
 	protected function ensureCurrentUserInDB () {
 		//$db = $this->getDB() ;
-		$db2 = openToolDB ( 'quickstatements_auth' ) ;
+		$db2 = $this->openToolDB ( 'quickstatements_auth' ) ;
 		$db2->set_charset("utf8") ;
 		$sql = "INSERT IGNORE INTO `user` (id,name) VALUES ({$this->user_id},'".$db2->real_escape_string($this->user_name)."')" ;
 		if(!$result = $db2->query($sql)) return $this->setErrorMessage ( 'There was an error running the query [' . $db2->error . ']'."\n$sql" ) ;
