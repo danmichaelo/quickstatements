@@ -3,6 +3,10 @@
 	"bot_config_file" : "/data/project/quickstatements/bot.ini" ,
 	"logfile" : "/data/project/quickstatements/tool.log" ,
 	"valid_origin" : "https://quickstatements.toolforge.org" ,
+	"mysql" : {
+		"host": "tools.labsdb" ,
+		"credentials_file": "/data/project/quickstatements/replica.my.cnf"
+	},
 	"sites" : {
 		"wikidata" : {
 			"oauth" : { "language":"wikidata" , "project":"wikidata" , "ini_file":"/data/project/quickstatements/oauth.ini" , "mwOAuthUrl":"https://www.mediawiki.org/w/index.php?title=Special:OAuth" , "mwOAuthIW":"mw" } ,
